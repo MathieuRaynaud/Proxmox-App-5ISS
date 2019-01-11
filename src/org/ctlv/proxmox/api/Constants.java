@@ -9,10 +9,10 @@ public class Constants {
 	public static String HOST = "srv-px1.insa-toulouse.fr";  // XXX
 	public static String REALM = "Ldap-INSA";
 	
-	public static String SERVER1 = "";  // exemple "srv-px2" XXX
-	public static String SERVER2 = "";  // XXX
-	public static String CT_BASE_NAME = "ct-tpgei-virt-XX-ct";  // "XX" à remplacer par votre numéro de binôme. Exemple: ct-tpgei-virt-A3-ct à concaténer avec le numéro du CT
-	public static long CT_BASE_ID = -1;	 // à modifier (cf. sujet de tp) XXX
+	public static String SERVER1 = "srv-px3";  // exemple "srv-px2" XXX
+	public static String SERVER2 = "srv-px4";  // XXX
+	public static String CT_BASE_NAME = "ct-tpgei-virt-C7-ct1";  // "XX" ï¿½ remplacer par votre numï¿½ro de binï¿½me. Exemple: ct-tpgei-virt-A3-ct ï¿½ concatï¿½ner avec le numï¿½ro du CT
+	public static long CT_BASE_ID = 124;	 // ï¿½ modifier (cf. sujet de tp) XXX
 
 	
 	public static long GENERATION_WAIT_TIME = 10;

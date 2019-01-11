@@ -1,10 +1,17 @@
 package org.ctlv.proxmox.manager;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.security.auth.login.LoginException;
+
 import org.ctlv.proxmox.api.ProxmoxAPI;
 import org.ctlv.proxmox.api.data.LXC;
+import org.json.JSONException;
 
 public class Analyzer {
 	ProxmoxAPI api;
@@ -15,13 +22,32 @@ public class Analyzer {
 		this.controller = controller;
 	}
 	
-	public void analyze(Map<String, List<LXC>> myCTsPerServer)  {
-
-		// Calculer la quantité de RAM utilisée par mes CTs sur chaque serveur
-		// ...
-
+	public void analyze(HashMap<String, ArrayList<LXC>> myCTsPerServer)  {
 		
-		// Mémoire autorisée sur chaque serveur
+		try {
+			api.login();
+		} catch (LoginException | JSONException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// Calculer la quantitï¿½ de RAM utilisï¿½e par mes CTs sur chaque serveur
+		
+		Iterator<String> sv = myCTsPerServer.keySet().iterator();
+		while(sv.hasNext()) {
+			String server = sv.next();
+			System.out.println("Server " + server + ": ");
+			Iterator<LXC> ct = myCTsPerServer.get(sv).iterator();
+			while(ct.hasNext()) {
+				LXC CT = ct.next();
+				System.out.println("	CT " + CT.getName() + ": ");
+				System.out.println("		RAM used: " + CT.getMem());
+				System.out.println("		Disk used: " + CT.getDisk());
+				System.out.println("		CPU used: " + CT.getCpu());
+			}
+		}
+		
+		// Mï¿½moire autorisï¿½e sur chaque serveur
 		// ...
 
 		

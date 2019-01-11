@@ -1,7 +1,13 @@
 package org.ctlv.proxmox.manager;
 
+import java.io.IOException;
+import java.util.List;
+
 import org.ctlv.proxmox.api.Constants;
 import org.ctlv.proxmox.api.ProxmoxAPI;
+import org.ctlv.proxmox.api.data.LXC;
+import org.json.JSONException;
+
 
 public class Monitor implements Runnable {
 
@@ -19,15 +25,28 @@ public class Monitor implements Runnable {
 		
 		while(true) {
 			
-			// Récupérer les données sur les serveurs
-			// ...
+			// Rï¿½cupï¿½rer les donnï¿½es sur les serveurs
+			
+			try {
+				for (int i=1; i<=10; i++) {
+					String srv ="srv-px"+i;
+					System.out.println("CTs sous "+srv);
+					List<LXC> cts = api.getCTs(srv);
+					
+					for (LXC lxc : cts) {
+						System.out.println("\t" + lxc.getName());
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			
 			// Lancer l'analyse
 			// ...
 
 			
-			// attendre une certaine période
+			// attendre une certaine pï¿½riode
 			try {
 				Thread.sleep(Constants.MONITOR_PERIOD * 1000);
 			} catch (InterruptedException e) {
