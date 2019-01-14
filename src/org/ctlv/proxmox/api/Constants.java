@@ -2,17 +2,17 @@ package org.ctlv.proxmox.api;
 
 public class Constants {
 	
-	public static String USER_NAME = ""; // votre nom d'utilisateur : XXX
-	public static String PASS_WORD = ""; // votre mot de passe . XXX
+	public static String USER_NAME = "laffosse"; // votre nom d'utilisateur : XXX
+	public static String PASS_WORD = "h'YC6d"; // votre mot de passe . XXX
 	
 	
 	public static String HOST = "srv-px1.insa-toulouse.fr";  // XXX
 	public static String REALM = "Ldap-INSA";
 	
-	public static String SERVER1 = "srv-px3";  // exemple "srv-px2" XXX
-	public static String SERVER2 = "srv-px4";  // XXX
-	public static String CT_BASE_NAME = "ct-tpgei-virt-C7-ct1";  // "XX" � remplacer par votre num�ro de bin�me. Exemple: ct-tpgei-virt-A3-ct � concat�ner avec le num�ro du CT
-	public static long CT_BASE_ID = 124;	 // � modifier (cf. sujet de tp) XXX
+	public static String SERVER1 = "srv-px9";  // exemple "srv-px2" XXX
+	public static String SERVER2 = "srv-px10";  // XXX
+	public static String CT_BASE_NAME = "ct-tpiss-virt-C5-ct1";  // "XX" � remplacer par votre num�ro de bin�me. Exemple: ct-tpgei-virt-A3-ct � concat�ner avec le num�ro du CT
+	public static long CT_BASE_ID = -1;	 // � modifier (cf. sujet de tp) XXX
 
 	
 	public static long GENERATION_WAIT_TIME = 10;
