@@ -3,7 +3,7 @@ package org.ctlv.proxmox.api;
 public class Constants {
 	
 	public static String USER_NAME = "laffosse"; // votre nom d'utilisateur : XXX
-	public static String PASS_WORD = "h'YC6d"; // votre mot de passe . XXX
+	public static String PASS_WORD = "******"; // votre mot de passe . XXX
 	
 	
 	public static String HOST = "srv-px1.insa-toulouse.fr";  // XXX

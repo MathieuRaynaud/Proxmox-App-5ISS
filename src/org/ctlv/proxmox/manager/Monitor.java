@@ -23,11 +23,72 @@ public class Monitor implements Runnable {
 		this.analyzer = analyzer;
 	}
 	
+	public void deleteAllCTs () {
+		try {
+			for (int i=1; i<=10; i++) {
+				String srv ="srv-px"+i;
+				
+				if (srv.equals(Constants.SERVER1)) {
+					List<LXC> cts = api.getCTs(srv);
+					System.out.println("Delete CTs on Server " + Constants.SERVER1);
+					for (LXC lxc : cts) {
+						if(lxc.getVmid().substring(0, 2).equals("35")) {
+							while (api.getCT(Constants.SERVER1, lxc.getVmid()).getStatus().equals("running")) {
+								try {
+									System.out.println("Stopping container " + lxc.getName());
+									api.stopCT(Constants.SERVER1, lxc.getVmid());
+									System.out.println("Stopped!");
+								} catch (Exception ignore ) {}
+							}
+							boolean deleted = false;
+							while (!deleted) {
+								try {
+									System.out.println("Deleting..." + lxc.getVmid());
+									api.deleteCT(Constants.SERVER1, lxc.getVmid());
+									System.out.println("Deleted!");
+									deleted = true;
+								} catch (Exception ignore ) {}
+							}
+						}
+					}
+				}
+				if(srv.equals(Constants.SERVER2)) {
+					List<LXC> cts = api.getCTs(srv);
+					System.out.println("Delete CTs on Server " + Constants.SERVER2);
+					for (LXC lxc : cts) {
+						if(lxc.getVmid().substring(0, 2).equals("35")) {
+							while (api.getCT(Constants.SERVER2, lxc.getVmid()).getStatus().equals("running")) {
+								try {
+									System.out.println("Stopping container " + lxc.getName());
+									api.stopCT(Constants.SERVER2, lxc.getVmid());
+									System.out.println("Stopped!");
+								} catch (Exception ignore ) {}
+							}
+							boolean deleted = false;
+							while (!deleted) {
+								try {
+									System.out.println("Deleting... " + lxc.getVmid());
+									api.deleteCT(Constants.SERVER2, lxc.getVmid());
+									System.out.println("Deleted!");
+									deleted = true;
+								} catch (Exception ignore ) {}
+							}
+						}
+					}
+				}
+					
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 	@Override
 	public void run() {
 		
-		while(true) {
+		//while(true) {
 			
 			// R�cup�rer les donn�es sur les serveurs
 			ArrayList<LXC> LXCList = new ArrayList<LXC>();
@@ -85,7 +146,7 @@ public class Monitor implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
+		//}
 		
 	}
 }

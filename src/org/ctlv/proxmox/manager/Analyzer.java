@@ -11,6 +11,7 @@ import javax.security.auth.login.LoginException;
 
 import java.util.Map.Entry;
 
+import org.ctlv.proxmox.api.Constants;
 import org.ctlv.proxmox.api.ProxmoxAPI;
 import org.ctlv.proxmox.api.data.LXC;
 import org.ctlv.proxmox.api.data.Node;
@@ -58,50 +59,83 @@ public class Analyzer {
 				}
 			}
 		} catch (LoginException | JSONException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return Ids;
 	}
 	
+	
+	
 	public void analyze(HashMap<String, ArrayList<LXC>> myCTsPerServer)  {
+		
+		// Mémoire autorisée sur chaque serveur
+		
+		try {
+			long MaxMemCTonServer1 = api.getNode(Constants.SERVER1).getMemory_total()*8/100;
+			long MaxMemCTonServer2 = api.getNode(Constants.SERVER2).getMemory_total()*8/100;
+		
 
-		// Calculer la quantit� de RAM utilis�e par mes CTs sur chaque serveur
-		for (Entry<String, ArrayList<LXC>> e : myCTsPerServer.entrySet()) {
-			analyzeServer(e.getKey());
-			
-			for(LXC lxc : e.getValue()) {
-				System.out.println("\tContainer " + lxc.getName() +":");
-				System.out.println("\t\t"+"CPU usage: " + lxc.getCpu()*100 + "%");
-				System.out.println("\t\t"+"Disk usage: " + lxc.getDisk()*100/lxc.getMaxdisk()+ "%");	
-				System.out.println("");
-			}				
+			// Calculer la quantité de RAM utilisée par mes CTs sur chaque serveur
+			for (Entry<String, ArrayList<LXC>> e : myCTsPerServer.entrySet()) {
+				analyzeServer(e.getKey());
+				
+				for(LXC lxc : e.getValue()) {
+					if (lxc.getVmid().substring(0, 2).equals("35")) {
+						System.out.println("\tContainer " + lxc.getName() +":");
+						System.out.println("\t\t"+"CPU usage: " + lxc.getCpu()*100 + "%");
+						System.out.println("\t\t"+"Disk usage: " + lxc.getDisk()*100/lxc.getMaxdisk()+ "%");
+						System.out.println("\t\t"+"RAM usage: " + lxc.getMem()*100/lxc.getMaxmem()+ "%");
+						System.out.println("");
+						long ramusedCT = lxc.getMem()*100/api.getNode(e.getKey()).getMemory_total();
+						
+						if(e.getKey().equals(Constants.SERVER1)) {
+							if(ramusedCT >= MaxMemCTonServer1) {
+								api.migrateCT(Constants.SERVER1, lxc.getVmid(), Constants.SERVER2);
+								System.out.println("CT " + lxc.getVmid() + " migrated to the server " + Constants.SERVER2);
+							}
+						}
+						else {
+							if(ramusedCT >= MaxMemCTonServer2) {
+								api.migrateCT(Constants.SERVER2, lxc.getVmid(), Constants.SERVER1);
+								System.out.println("CT " + lxc.getVmid() + " migrated to the server " + Constants.SERVER1);
+							}
+						}
+					}
+				}
+				long load = api.getNode(e.getKey()).getMemory_used()*100/api.getNode(e.getKey()).getMemory_total();
+				if(load > 12/100) {
+					ArrayList<String> existing_ids = getIds();
+					long min = (long) Integer.MAX_VALUE;
+					LXC toDelete = null;
+					for (LXC lxc : e.getValue()) {
+						if (lxc.getVmid().substring(0, 2).equals("35")) {
+							if (lxc.getUptime() < min) {
+								toDelete = lxc;
+								min = lxc.getUptime();
+							}
+						}
+					}
+					if (toDelete != null) {
+						while (api.getCT(e.getKey(), toDelete.getVmid()).getStatus().equals("running")) {
+							try {
+								System.out.println("Stopping container " + toDelete.getName());
+								api.stopCT(e.getKey(), toDelete.getVmid());
+								System.out.println("Stopped!");
+							} catch (Exception ignore ) {}
+						}
+					}
+				}
+			}
+		
+		} catch (LoginException | JSONException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
 		
-		// M�moire autoris�e sur chaque serveur
-		// ...
-		//getName();
-		//getCpu();
-		//getDisk();
 		
 		
-		/*
-		try {
-			for (int i=1; i<=10; i++) {
-				String srv ="srv-px"+i;
-				System.out.println("CTs sous "+srv);
-				
-				
-				List<LXC> cts = api.getCTs(srv);
-				
-				for (LXC lxc : cts) {
-					System.out.println("\t" + lxc.getName());
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
+		
 
 		
 		// Analyse et Actions

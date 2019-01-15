@@ -37,7 +37,7 @@ public class GeneratorMain {
 		long baseID = Constants.CT_BASE_ID;
 		int lambda = 30;
 		
-		Integer vmid = 129;
+		Integer vmid = 3500;
 		Integer indice = 2;
 		
 		Map<String, List<LXC>> myCTsPerServer = new HashMap<String, List<LXC>>();
@@ -55,20 +55,17 @@ public class GeneratorMain {
 		Analyzer analyzer = new Analyzer(api,controller);
 		Monitor monitor = new Monitor(api,analyzer);
 		
+		monitor.deleteAllCTs();
+		
 		while (true) {
 			
 			// 1. Calculer la quantit� de RAM utilis�e par mes CTs sur chaque serveur
-			long memOnServer1 = analyzer.getMemoryOfServer(Constants.SERVER1);
-			// ...
-			
+			long memOnServer1 = analyzer.getMemoryOfServer(Constants.SERVER1);			
 			long memOnServer2 = analyzer.getMemoryOfServer(Constants.SERVER2);
-			// ...
 			
 			// M�moire autoris�e sur chaque serveur
 			float memRatioOnServer1 = api.getNode(Constants.SERVER1).getMemory_total()*16/100;
-			// ...
 			float memRatioOnServer2 = api.getNode(Constants.SERVER2).getMemory_total()*16/100;
-			// ... 
 			
 			if (memOnServer1 < memRatioOnServer1 && memOnServer2 < memRatioOnServer2) {  // Exemple de condition de l'arr�t de la g�n�ration de CTs
 				
@@ -80,27 +77,36 @@ public class GeneratorMain {
 					serverName = Constants.SERVER2;
 				
 				ArrayList<String> existing_ids = analyzer.getIds();
-				for (String id: existing_ids) {
-					System.out.println(id);
-				}
 				while (existing_ids.contains(vmid.toString()))
 					vmid++;
 				// cr�er un contenaire sur ce serveur
 				System.out.println("Creating a container on server " + serverName +"...");
 				api.createCT(serverName, vmid.toString(), "ct-tpiss-virt-C5-ct"+indice, Constants.RAM_SIZE[1]);
-				indice++;
 				System.out.println("Created!");
+
+				while (api.getCT(serverName, vmid.toString()).getStatus().equals("stopped")) {
+					try {
+						System.out.println("Starting container ct-tpiss-virt-C5-ct"+indice);
+						api.startCT(serverName, vmid.toString());
+						System.out.println("Started!");
+					} catch (Exception ignore ) {}
+				}
+
+				indice++;
 				
 				// planifier la prochaine cr�ation
 				int timeToWait = getNextEventExponential(lambda); // par exemple une loi expo d'une moyenne de 30sec
 				
 				// attendre jusqu'au prochain �v�nement
-				Thread.sleep(1000 * timeToWait);
+				Thread.sleep(500 * timeToWait);
 			}
 			else {
 				System.out.println("Servers are loaded, waiting ...");
 				Thread.sleep(Constants.GENERATION_WAIT_TIME* 1000);
 			}
+			
+			// Monitor 
+			monitor.run();
 		}
 		
 	}
